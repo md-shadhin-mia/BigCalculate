@@ -1,0 +1,39 @@
+name: Build Spring Maven Project
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+
+    - name: Set up JDK 17
+      uses: actions/setup-java@v2
+      with:
+        java-version: 17
+
+    - name: Build with Maven
+      run: mvn -B package
+      working-directory: ./your_project_directory
+
+    - name: Publish JAR artifact
+      uses: actions/upload-artifact@v2
+      with:
+        name: your-project-name
+        path: target/*.jar
+    
+    - name: Build Docker Image
+      run: docker build -t your_docker_username/your_image_name:latest .
+      working-directory: ./your_project_directory
+
+    - name: Login to Docker Hub
+      run: echo ${{ secrets.DOCKER_PASSWORD }} | docker login -u ${{ secrets.DOCKER_USERNAME }} --password-stdin
+
+    - name: Push Docker Image
+      run: docker push your_docker_username/your_image_name:latest
